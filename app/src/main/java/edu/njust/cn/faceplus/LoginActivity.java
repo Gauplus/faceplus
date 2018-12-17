@@ -22,6 +22,8 @@ public class LoginActivity extends AppCompatActivity {
     private TextView btn_register;
     private Button btn_login;
     private TextView btn_forgetPassword;
+    private String id;
+    private String password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,13 @@ public class LoginActivity extends AppCompatActivity {
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(LoginActivity.this,"登录逻辑处理",Toast.LENGTH_LONG).show();
+                id=edt_workID.getText().toString();
+                password=edt_password.getText().toString();
+                if(LoginService.loginByPost(id,password)=="OK"){
+                    Intent intent=new Intent(LoginActivity.this,MainActivity.class);
+                    startActivity(intent);
+                }
+                //Toast.makeText(LoginActivity.this,"登录逻辑处理",Toast.LENGTH_LONG).show();
             }
         });
         btn_register.setText(getClickableSpan());
