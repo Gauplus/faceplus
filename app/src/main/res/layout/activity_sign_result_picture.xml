@@ -13,24 +13,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|right"
+            android:layout_marginBottom="20dp"
+            android:layout_marginRight="20dp"
             >
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_absent"
+                android:id="@+id/fab_sign_result_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
                 android:src="@mipmap/check_state"
                 app:fabSize="normal"
                 app:backgroundTint="#ffffff"/>
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_attend"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:clickable="true"
-                android:src="@mipmap/qiandao"
-                app:fabSize="normal"
-                app:backgroundTint="#ffffff"/>
+
         </LinearLayout>
 
     </FrameLayout>
