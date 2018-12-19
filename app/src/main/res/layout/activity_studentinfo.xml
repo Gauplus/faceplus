@@ -8,102 +8,55 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:orientation="horizontal">
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="个人信息"
-            android:textColor="#588080"
-            android:textSize="20sp"
-            android:id="@+id/edt_lesson"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/input_studentName"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        android:gravity="left|center_horizontal"
-        android:paddingTop="0dp"
-        android:paddingBottom="0dp"
-        android:paddingLeft="10dp">
-        <TextView
-            android:layout_width="70dp"
-            android:layout_height="50dp"
-            android:text="姓名："
-            android:textSize="20sp"/>
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:paddingLeft="2dp"
-            android:hint="请输入姓名"
-            android:textSize="20sp"
-            android:inputType="text"
-            android:background="@null"/>
-
+            android:textSize="30sp"
+            />
     </LinearLayout>
     <LinearLayout
-        android:id="@+id/input_studentNum"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        android:gravity="left|center_horizontal"
-        android:paddingTop="0dp"
-        android:paddingBottom="0dp"
-        android:paddingLeft="10dp">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        >
         <TextView
-            android:layout_width="70dp"
-            android:layout_height="50dp"
-            android:text="学号："
-            android:textSize="20sp"/>
-        <EditText
+            android:id="@+id/txt_studentName"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:paddingLeft="2dp"
-            android:hint="请输入学号"
-            android:textSize="20sp"
-            android:inputType="number"
-            android:background="@null"/>
-
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/input_studentPhone"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        android:gravity="left|center_horizontal"
-        android:paddingTop="0dp"
-        android:paddingBottom="0dp"
-        android:paddingLeft="10dp">
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="姓名"
+            android:textSize="20sp"/>
         <TextView
-            android:layout_width="70dp"
-            android:layout_height="50dp"
-            android:text="电话："
-            android:textSize="20sp"/>
-        <EditText
+            android:id="@+id/txt_studentId"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:paddingLeft="2dp"
-            android:hint="请输入电话"
-            android:textSize="20sp"
-            android:inputType="number"
-            android:background="@null"/>
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="学号"
+            android:textSize="20sp"/>
 
+        <TextView
+            android:id="@+id/txt_studentTel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="电话"
+            android:textSize="20sp"/>
     </LinearLayout>
+
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="100sp">
+    >
     <Button
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_weight="1"
-        android:paddingTop="0dp"
-        android:background="#50c2ab"
-        android:text="提交"
-        android:textSize="20sp"></Button>
+        android:id="@+id/btn_offline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="注销"
+        android:textSize="20sp">
+    </Button>
 </LinearLayout>
-
-
 </LinearLayout>

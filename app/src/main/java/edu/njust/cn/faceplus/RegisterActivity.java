@@ -14,7 +14,7 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register_1);
+        setContentView(R.layout.activity_register_tel);
         edt_tel=findViewById(R.id.edt_tel);
         edt_verifyCode=findViewById(R.id.edt_verifyCode);
         btn_getVerifyCode=findViewById(R.id.btn_getVerifyCode);
