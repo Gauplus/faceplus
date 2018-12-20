@@ -16,6 +16,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CourseActivity" />
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".SignResultPicActivity" />
+        <activity android:name=".SignResultListActivity" />
+        <activity android:name=".StatusResultPicActivity" />
+        <activity android:name=".StatusResultListActivity"></activity>
     </application>
 
 </manifest>

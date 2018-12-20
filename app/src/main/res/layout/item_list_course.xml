@@ -4,6 +4,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -12,6 +13,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="课程名"/>
+
+        <TextView
+            android:id="@+id/txt_courseTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="课程时间"/>
+
+        <TextView
+            android:id="@+id/txt_coursePlace"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="课程地点"/>
     </LinearLayout>
 
 

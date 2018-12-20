@@ -16,6 +16,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * 登录活动
+ */
 public class LoginActivity extends AppCompatActivity {
     private EditText edt_workID;
     private EditText edt_password;

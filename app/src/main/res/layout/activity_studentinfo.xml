@@ -23,14 +23,14 @@
         android:layout_marginTop="20dp"
         >
         <TextView
-            android:id="@+id/txt_studentName"
+            android:id="@+id/txt_studentinfo_studentName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="姓名"
             android:textSize="20sp"/>
         <TextView
-            android:id="@+id/txt_studentId"
+            android:id="@+id/txt_studentInfo_studentId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
