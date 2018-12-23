@@ -21,7 +21,8 @@
         <activity android:name=".SignResultPicActivity" />
         <activity android:name=".SignResultListActivity" />
         <activity android:name=".StatusResultPicActivity" />
-        <activity android:name=".StatusResultListActivity"></activity>
+        <activity android:name=".StatusResultListActivity" />
+        <activity android:name=".RegisterInfoActivity"></activity>
     </application>
 
 </manifest>
