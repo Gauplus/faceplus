@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.njust.cn.faceplus">
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -23,18 +24,18 @@
         <activity android:name=".SignResultListActivity" />
         <activity android:name=".StatusResultPicActivity" />
         <activity android:name=".StatusResultListActivity" />
-        <activity android:name=".RegisterInfoActivity"></activity>
+        <activity android:name=".RegisterInfoActivity" />
+
         <provider
-            android:authorities="edu.njust.cn.faceplus.provider"
             android:name="android.support.v4.content.FileProvider"
+            android:authorities="edu.njust.cn.faceplus.provider"
             android:exported="false"
-            android:grantUriPermissions="true"
-            >
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.v4.content.FileProvider"
-                android:resource="@xml/file_paths"
-                />
+                android:resource="@xml/file_paths" />
         </provider>
+
     </application>
 
 </manifest>

@@ -10,25 +10,44 @@
         android:background="#dddddd">
 
     </FrameLayout>
+
     <LinearLayout
+        android:id="@+id/ly_tab_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:background="#fff"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btn_course"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:text="课程"
-            android:textSize="20sp"/>
+            android:layout_weight="1"
+            android:background="@drawable/tab_course"
+            android:drawablePadding="3dp"
+
+            android:gravity="center"
+            android:padding="5dp"
+
+
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/btn_infopage"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="我的"
-            android:textSize="20sp"/>
+            android:background="@drawable/tab_infopage"
+            android:drawablePadding="3dp"
+
+            android:gravity="center"
+            android:padding="5dp"
+
+
+            android:textSize="16sp" />
+
+
 
     </LinearLayout>
 
