@@ -11,6 +11,9 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -18,11 +21,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.io.File;
@@ -34,126 +39,142 @@ public class RegisterInfoActivity extends AppCompatActivity {
     public static  final int CHOOSE_PHOTO=2;
     private ImageView picture;
     private Uri imageUri;
+    private String mTempPhotoPath;
+    private Button btn_takephoto;
+    private Button btn_chooseFromAlbum;
     private EditText edt_name;
     private EditText edt_nickname;
-    private  EditText edt_birth;
     private EditText edt_school;
-    private EditText edt_studentId;
-    private  RadioButton rbtnMale,rbtnFamale;
-    private  RadioButton rbtntech,rbtnstu;
-
-
+    private EditText edt_birth;
+    private RadioGroup rg_sex;
+    private RadioGroup rg_identity;
+    private RadioButton rbtn_sex;
+    private RadioButton rbtn_identity;
+    private Button btn_save;
+    private String name;
+    private String nickname;
+    private String school;
+    private String sex;
+    private String birth;
+    private String identity;
+    //拍照回传码
+    public final static int CAMERA_REQUEST_CODE = 0;
+    // 相册选择回传码
+    public final static int GALLERY_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_regist_info);
-        init();
-        Button takephoto = (Button) findViewById(R.id.take_photo);
-        Button chooseFromAlbum = (Button) findViewById(R.id.choose_from_album);
-
-        chooseFromAlbum.setOnClickListener(new View.OnClickListener() {
+        edt_name=findViewById(R.id.edt_name);
+        edt_nickname=findViewById(R.id.edt_nickname);
+        edt_birth=findViewById(R.id.edt_birth);
+        edt_school=findViewById(R.id.edt_school);
+        rg_sex=findViewById(R.id.sex);
+        rg_identity=findViewById(R.id.identity);
+        btn_save=findViewById(R.id.btn_save);
+        rg_sex.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                selectSex();
+            }
+        });
+        rg_identity.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                selectIdentity();
+            }
+        });
+        btn_takephoto = (Button) findViewById(R.id.take_photo);
+        btn_chooseFromAlbum = (Button) findViewById(R.id.choose_from_album);
+        btn_chooseFromAlbum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(RegisterInfoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                /**if (ContextCompat.checkSelfPermission(RegisterInfoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(RegisterInfoActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
                 } else {
                     openAlbum();
+                }*/
+                if (ContextCompat.checkSelfPermission(RegisterInfoActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {   //权限还没有授予，需要在这里写申请权限的代码
+                    // 第二个参数是一个字符串数组，里面是你需要申请的权限 可以设置申请多个权限
+                    // 最后一个参数是标志你这次申请的权限，该常量在onRequestPermissionsResult中使用到
+                    ActivityCompat.requestPermissions(RegisterInfoActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_REQUEST_CODE);
+
+                }else { //权限已经被授予，在这里直接写要执行的相应方法即可
+                    Intent intentToPickPic = new Intent(Intent.ACTION_PICK, null);
+                    // 如果限制上传到服务器的图片类型时可以直接写如："image/jpeg 、 image/png等的类型" 所有类型则写 "image/*"
+                    intentToPickPic.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/jpeg");
+                    startActivityForResult(intentToPickPic, GALLERY_REQUEST_CODE);
                 }
             }
         });
-        takephoto.setOnClickListener(new View.OnClickListener() {
-
+        btn_takephoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
-                try {
-                    if (outputImage.exists()) {
-                        outputImage.delete();
-                    }
-                    outputImage.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (ContextCompat.checkSelfPermission(RegisterInfoActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {   //权限还没有授予，需要在这里写申请权限的代码
+                    // 第二个参数是一个字符串数组，里面是你需要申请的权限 可以设置申请多个权限
+                    // 最后一个参数是标志你这次申请的权限，该常量在onRequestPermissionsResult中使用到
+                    ActivityCompat.requestPermissions(RegisterInfoActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_REQUEST_CODE);
 
+                }else { //权限已经被授予，在这里直接写要执行的相应方法即可
+                    Intent intentToTakePhoto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    // 指定照片存储位置为sd卡本目录下
+                    // 这里设置为固定名字 这样就只会只有一张temp图 如果要所有中间图片都保存可以通过时间或者加其他东西设置图片的名称
+                    // File.separator为系统自带的分隔符 是一个固定的常量
+                    mTempPhotoPath = Environment.getExternalStorageDirectory() + File.separator + "photo.jpeg";
+                    // 获取图片所在位置的Uri路径    *****这里为什么这么做参考问题2*****
+                    /*imageUri = Uri.fromFile(new File(mTempPhotoPath));*/
+                    imageUri = FileProvider.getUriForFile(RegisterInfoActivity.this,
+                            RegisterInfoActivity.this.getApplicationContext().getPackageName() + ".provider",
+                            new File(mTempPhotoPath));
+                    //下面这句指定调用相机拍照后的照片存储的路径
+                    intentToTakePhoto.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    startActivityForResult(intentToTakePhoto, CAMERA_REQUEST_CODE);
                 }
-                if (Build.VERSION.SDK_INT >= 24) {
-                    imageUri = FileProvider.getUriForFile(RegisterInfoActivity.this, "edu.njust.cn.faceplus.provider", outputImage);
-                } else {
-                    imageUri = Uri.fromFile(outputImage);
-                }
-                //启动相机程序
-                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                startActivityForResult(intent, Take_photo);
-
             }
         });
-    }
-    private void init()
-    {
-
-        edt_name = findViewById(R.id.edt_name);
-        edt_nickname=findViewById(R.id.edt_nickname);
-        edt_birth=findViewById(R.id.edt_birth);
-        edt_school=findViewById(R.id.edt_school);
-        edt_studentId=findViewById(R.id.edt_studentId);
-        rbtnMale=findViewById(R.id.rbtn_male);
-        rbtnMale=findViewById(R.id.rbtn_female);
-        rbtntech=findViewById(R.id.rbtn_teacher);
-        rbtnstu=findViewById(R.id.rbtn_student);
-        Button edt_register=findViewById(R.id.save_regist_info);
-
-    }
-    public void onClick(View view){
-        if (view.getId()==R.id.save_regist_info)
-        {
-
-            String name=edt_name.getText().toString();
-            if(TextUtils.isEmpty(name))
-            {
-                Toast.makeText(this,"用户名不能为空",Toast.LENGTH_SHORT).show();
-                return;
+        btn_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                name=edt_name.getText().toString().trim();
+                nickname=edt_nickname.getText().toString().trim();
+                birth=edt_birth.getText().toString().trim();
+                school=edt_school.getText().toString().trim();
+                if (StringUtil.isEmpty(name)||StringUtil.isEmpty(birth)||StringUtil.isEmpty(school)){
+                    Toast.makeText(RegisterInfoActivity.this,"姓名或生日或学校不能为空",Toast.LENGTH_LONG).show();
+                }
+                if(StringUtil.isEmpty(nickname)){
+                    nickname=name;
+                }
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Message message=new Message();
+                        if(RegisterService.registerInfoByPost(name,nickname,birth,sex,school)=="OK"){
+                            if (identity=="老师"){
+                                message.what=2;
+                                handler.sendMessage(message);
+                            }
+                            else{
+                                message.what=1;
+                                handler.sendMessage(message);
+                            }
+                        }
+                        else{
+                            message.what=0;
+                            handler.sendMessage(message);
+                        }
+                    }
+                }).start();
             }
-            String nickname=edt_nickname.getText().toString();
-            if(TextUtils.isEmpty(nickname))
-            {
-                Toast.makeText(this,"昵称不能为空",Toast.LENGTH_SHORT).show();
-                return;
-            }
-            String birth=edt_birth.getText().toString();
-            if(TextUtils.isEmpty(birth))
-            {
-                Toast.makeText(this,"出生日期不能为空",Toast.LENGTH_SHORT).show();
-                return;
-            }
-            String school=edt_school.getText().toString();
-            if(TextUtils.isEmpty(school))
-            {
-                Toast.makeText(this,"学校不能为空",Toast.LENGTH_SHORT).show();
-                return;
-            }
-            String studentId=edt_studentId.getText().toString();
-            if(TextUtils.isEmpty(studentId))
-            {
-                Toast.makeText(this,"学号不能为空",Toast.LENGTH_SHORT).show();
-                return;
-            }
-            String sex;
-            if(rbtnMale.isChecked()){
-                sex=rbtnMale.getText().toString();
-            }else {
-                sex=rbtnFamale.getText().toString();
-            }
-            String identity;
-            if(rbtntech.isChecked())
-            {
-                identity=rbtntech.getText().toString();
-            }else{
-                identity=rbtnstu.getText().toString();
-            }
-
-        }
+        });
     }
     private void openAlbum() {
         Intent intent = new Intent("android.intent.action.GET_CONTENT");
@@ -177,91 +198,115 @@ public class RegisterInfoActivity extends AppCompatActivity {
 
         }
     }
-
-
-
-    protected void  onActivityResult(int requestCode,int resultCode,Intent data) {
-        switch (requestCode) {
-            case Take_photo:
-                if (requestCode == RESULT_OK) {
-                    try {
-                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
-                        picture.setImageBitmap(bitmap);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
-            case CHOOSE_PHOTO:
-                if (resultCode==RESULT_OK){
-                    if(Build.VERSION.SDK_INT>=19)
-                    {
-                        //4.4及以上系统是用这个方法处理图片
-                        handleImageOnKitKat(data);
-                    }else{
-                        //4.4以下系统使用这个方法处理图片
-                        handleImageBeforeKitKat(data);
-
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-    }
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void handleImageOnKitKat(Intent data)
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+      picture = findViewById(R.id.upload_img);
+      if (resultCode == RegisterInfoActivity.RESULT_OK) {
+          switch (requestCode) {
+              case CAMERA_REQUEST_CODE: {
+                  // 获得图片
+                  try {
+                      //该uri就是照片文件夹对应的uri
+                      Bitmap bit = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                      // 给相应的ImageView设置图片 未裁剪
+                      picture.setImageBitmap(bit);
+                  } catch (Exception e) {
+                      e.printStackTrace();
+                  }
+                  break;
+              }
+              case GALLERY_REQUEST_CODE: {
+                  // 获取图片
+                  try {
+                      //该uri是上一个Activity返回的
+                      imageUri = data.getData();
+                      if(imageUri!=null) {
+                          Bitmap bit = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                          Log.i("bit", String.valueOf(bit));
+                          picture.setImageBitmap(bit);
+                      }
+                  } catch (Exception e) {
+                      e.printStackTrace();
+                  }
+                  break;
+              }
+          }
+      }
+      super.onActivityResult(requestCode, resultCode, data);
+  }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
     {
-        String imagePath=null;
-        Uri uri = data.getData();
-        if(DocumentsContract.isDocumentUri(this,uri)){
-            //如果是document类型的URI，则通过document id处理
-            String docId=DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())){
-                String id=docId.split(":")[1];//解析出数字格式的id
-                String selection = MediaStore.Images.Media._ID+"="+id;
-                imagePath=getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,selection);
 
-            }else if("com.android.providers.downloads.documents".equals(uri.getAuthority())){
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads//public_downloads"),Long.valueOf(docId));
-                imagePath=getImagePath(contentUri,null);
-            }
-        }else if("content".equalsIgnoreCase(uri.getScheme())){
-            //如果是content类型的Uri，则使用普通方式处理
-            imagePath=getImagePath(uri,null);
-        }else if("file".equalsIgnoreCase(uri.getScheme())){
-            //如果是file类型的URI，直接获取图片路径即可
-            imagePath=uri.getPath();
-        }
-        displayImage(imagePath);
-    }
-    private  void handleImageBeforeKitKat(Intent data){
-        Uri uri=data.getData();
-        String imagePath = getImagePath(uri,null);
-        displayImage(imagePath);
-    }
-    private  String getImagePath(Uri uri,String selection){
-        String path=null;
-        //通过uri和selection来获取真实的图片路径
-        Cursor cursor=getContentResolver().query(uri,null,selection,null,null);
-        if(cursor!=null)
+        if (requestCode == CAMERA_REQUEST_CODE)
         {
-            if(cursor.moveToFirst()){
-                path=cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Intent intentToTakePhoto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                // 指定照片存储位置为sd卡本目录下
+                // 这里设置为固定名字 这样就只会只有一张temp图 如果要所有中间图片都保存可以通过时间或者加其他东西设置图片的名称
+                // File.separator为系统自带的分隔符 是一个固定的常量
+                mTempPhotoPath = Environment.getExternalStorageDirectory() + File.separator + "photo.jpeg";
+                // 获取图片所在位置的Uri路径    *****这里为什么这么做参考问题2*****
+                /*imageUri = Uri.fromFile(new File(mTempPhotoPath));*/
+                imageUri = FileProvider.getUriForFile(RegisterInfoActivity.this,
+                        RegisterInfoActivity.this.getApplicationContext().getPackageName() +".provider",
+                        new File(mTempPhotoPath));
+                //下面这句指定调用相机拍照后的照片存储的路径
+                intentToTakePhoto.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(intentToTakePhoto, CAMERA_REQUEST_CODE);
+
+            } else
+            {
+                // Permission Denied
+                Toast.makeText(RegisterInfoActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
             }
-            cursor.close();
         }
-        return path;
-    }
-    private  void displayImage(String imagePath)
-    {
-        if(imagePath!=null){
-            Bitmap bitmap =BitmapFactory.decodeFile(imagePath);
-            picture.setImageBitmap(bitmap);
-        }else{
-            Toast.makeText(this,"failed to get image",Toast.LENGTH_SHORT).show();
+
+        if (requestCode == GALLERY_REQUEST_CODE)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Intent intentToPickPic = new Intent(Intent.ACTION_PICK, null);
+                // 如果限制上传到服务器的图片类型时可以直接写如："image/jpeg 、 image/png等的类型" 所有类型则写 "image/*"
+                intentToPickPic.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/jpeg");
+                startActivityForResult(intentToPickPic, GALLERY_REQUEST_CODE);
+            } else
+            {
+                // Permission Denied
+                Toast.makeText(RegisterInfoActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            }
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
+    private void selectSex(){
+        rbtn_sex=findViewById(rg_sex.getCheckedRadioButtonId());
+        sex=rbtn_sex.getText().toString();
+    }
+    private void selectIdentity(){
+        rbtn_identity=findViewById(rg_identity.getCheckedRadioButtonId());
+        identity=rbtn_identity.getText().toString();
+    }
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 2:
+                    Intent intent=new Intent(RegisterInfoActivity.this,MainActivity.class);
+                    startActivity(intent);
+                    break;
+                case 1:
+                    Intent intent1=new Intent(RegisterInfoActivity.this,StudentActivity.class);
+                    startActivity(intent1);
+                case 0:
+                    Toast.makeText(RegisterInfoActivity.this,"添加个人信息失败",Toast.LENGTH_LONG).show();
+                    break;
+
+            }
+        }
+    };
 }
 
 

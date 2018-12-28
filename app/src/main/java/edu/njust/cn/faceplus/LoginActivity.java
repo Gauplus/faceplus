@@ -2,6 +2,8 @@ package edu.njust.cn.faceplus;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -38,23 +40,33 @@ public class LoginActivity extends AppCompatActivity {
         btn_login=findViewById(R.id.btn_login);
         btn_register=findViewById(R.id.btn_register);
         btn_forgetPassword=findViewById(R.id.btn_forgetPassword);
-        btn_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                id=edt_workID.getText().toString();
-                password=edt_password.getText().toString();
-                if(LoginService.loginByPost(id,password)=="OK"){
-                    Intent intent=new Intent(LoginActivity.this,MainActivity.class);
-                    startActivity(intent);
-                }
-                //Toast.makeText(LoginActivity.this,"登录逻辑处理",Toast.LENGTH_LONG).show();
-            }
-        });
         btn_register.setText(getClickableSpan());
         btn_register.setMovementMethod(LinkMovementMethod.getInstance());
         btn_forgetPassword.setText(getClickableSpan1());
         btn_forgetPassword.setMovementMethod(LinkMovementMethod.getInstance());
-    }
+        btn_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        id=edt_workID.getText().toString();
+                        password=edt_password.getText().toString();
+                        Message message=new Message();
+                        if(LoginService.loginByPost(id,password)=="OK"){
+                            message.what=1;
+                            handler.sendMessage(message);
+                        }
+                        else{
+                            message.what=0;
+                            handler.sendMessage(message);
+                        }
+                    }
+                }).start();
+            }
+        });
+        }
+
     private SpannableString getClickableSpan(){
         SpannableString spannableString=new SpannableString("注册账号");
         spannableString.setSpan(new UnderlineSpan(),0,4,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -80,4 +92,20 @@ public class LoginActivity extends AppCompatActivity {
         spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#1c86ee")),0,5,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableString;
     }
+        Handler handler=new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what){
+                    case 1:
+                        Intent intent=new Intent(LoginActivity.this,MainActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 0:
+                        Toast.makeText(LoginActivity.this,"用户名或密码错误",Toast.LENGTH_LONG).show();
+                        break;
+
+                }
+            }
+        };
 }

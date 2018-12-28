@@ -6,33 +6,65 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-         <EditText
-             android:id="@+id/edt_tel"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:hint="仅支持中国大陆手机号"
-             />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="手机号"
+            android:textSize="20sp"
+            />
+        <EditText
+            android:id="@+id/edt_tel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:hint="仅支持中国大陆手机号"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="工号"
+            android:textSize="20sp"
+            />
+        <EditText
+            android:id="@+id/edt_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:hint="请输入您的工号"
+            />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/edt_verifyCode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:hint="请输入验证码"
-            />
-        <Button
-            android:id="@+id/btn_getVerifyCode"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="获取验证码"
-
+            android:gravity="center"
+            android:text="密码"
+            android:textSize="20sp"
+            />
+        <EditText
+            android:id="@+id/edt_RegPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:inputType="textPassword"
+            android:hint="8-16位数字和字母"
             />
     </LinearLayout>
+
 
     <LinearLayout
         android:orientation="horizontal"
@@ -50,27 +82,28 @@
     </LinearLayout>
 
     <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_cancleRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="10dp"
+            android:textSize="20sp"
+            android:background="#f0ce34"
+            android:text="取消" />
 
         <Button
             android:id="@+id/btn_VerifyRegister"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:layout_margin="10dp"
+            android:background="#f0ce34"
             android:text="注册"
             android:textSize="20sp" />
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:id="@+id/btn_cancleRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:textSize="20sp"
-            android:text="取消" />
     </LinearLayout>
 </LinearLayout>

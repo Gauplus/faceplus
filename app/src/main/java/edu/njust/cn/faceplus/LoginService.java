@@ -13,7 +13,7 @@ public class LoginService {
     public static String loginByPost(String id,String password) {
         HttpURLConnection connection=null;
         URL url=null;
-        String path = "http://10.42.194.75:8080/QQServerDatabase/LoginServlet";
+        String path = "http://10.30.111.245:3000/login";
         try {
             url = new URL(path);
             connection = (HttpURLConnection) url.openConnection();
