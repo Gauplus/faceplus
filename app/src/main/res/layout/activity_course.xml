@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
-                android:src="@mipmap/check_state"
+                android:src="@mipmap/jian2"
                 app:fabSize="normal"
                 app:backgroundTint="#ffffff"/>
             <android.support.design.widget.FloatingActionButton
@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:clickable="true"
-                android:src="@mipmap/qiandao"
+                android:src="@mipmap/qiandao1"
                 app:fabSize="normal"
                 app:backgroundTint="#ffffff"/>
         </LinearLayout>
