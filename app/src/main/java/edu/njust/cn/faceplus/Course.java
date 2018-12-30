@@ -7,6 +7,15 @@ public class Course {
     private String courseName;
     private String courseTime;
     private String coursePlace;
+    private String courseId;
+
+    public void setCourseId(String courseId) {
+        this.courseId = courseId;
+    }
+
+    public String getCourseId() {
+        return courseId;
+    }
 
     public void setCourseName(String courseName) {
         this.courseName = courseName;

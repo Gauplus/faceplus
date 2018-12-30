@@ -29,12 +29,13 @@ public class LoginActivity extends AppCompatActivity {
     private TextView btn_forgetPassword;
     private String id;
     private String password;
-
+    private Data dataApp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        dataApp=(Data)getApplication();
         edt_workID=findViewById(R.id.edt_workID);
         edt_password=findViewById(R.id.edt_password);
         btn_login=findViewById(R.id.btn_login);
@@ -98,6 +99,7 @@ public class LoginActivity extends AppCompatActivity {
                 super.handleMessage(msg);
                 switch (msg.what){
                     case 1:
+                        dataApp.setTid(id);
                         Intent intent=new Intent(LoginActivity.this,MainActivity.class);
                         startActivity(intent);
                         break;

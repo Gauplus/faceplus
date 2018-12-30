@@ -11,6 +11,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
@@ -24,10 +26,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * 某门课程界面，显示学生列表，和签到、检测状态按钮
@@ -38,11 +50,12 @@ public class CourseActivity extends AppCompatActivity {
     private FloatingActionButton fab_signIn;       //签到按钮
     private FloatingActionButton fab_checkStatus; //状态检测按钮
     private StudentAdapter studentAdapter;
-    private List<Student> studentList;
+    private ArrayList<Student> studentList;
     public static final int Take_photo = 1;
     public static  final int CHOOSE_PHOTO=2;
     private ImageView picture;
     private Uri imageUri;
+    private String studentsData;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +64,8 @@ public class CourseActivity extends AppCompatActivity {
         student_list=findViewById(R.id.list_student);
         fab_signIn=findViewById(R.id.fab_signIn);
         fab_checkStatus=findViewById(R.id.fab_checkStatus);
-        studentAdapter=new StudentAdapter(CourseActivity.this,R.layout.item_list_students,studentList);
-        student_list.setAdapter(studentAdapter);
+        init();
+
 
         fab_signIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,6 +105,72 @@ public class CourseActivity extends AppCompatActivity {
             }
         });
     }
+    private void init(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String tid=null,cid=null,place=null,ctime=null;
+                Intent intent = getIntent();
+                if("action".equals(intent.getAction())) {
+                    tid = intent.getStringExtra("tid");
+                    cid=intent.getStringExtra("cid");
+                    place=intent.getStringExtra("place");
+                    ctime=intent.getStringExtra("ctime");
+                }
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request.Builder reqBuild = new Request.Builder();
+                HttpUrl.Builder urlBuilder =HttpUrl.parse("http://10.30.111.245:3000/getStudentList")
+                        .newBuilder();
+                urlBuilder.addQueryParameter("tid", tid);
+                urlBuilder.addQueryParameter("cid", cid);
+                urlBuilder.addQueryParameter("place", place);
+                urlBuilder.addQueryParameter("ctime", ctime);
+                reqBuild.url(urlBuilder.build());
+                Request request = reqBuild.build();
+                try {
+                    Response response = okHttpClient.newCall(request).execute();
+                    //获取到数据
+                    studentsData = response.body().string();
+                    //在线程中没有办法实现主线程操作
+                    GSONStudents(studentsData);
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+    private void GSONStudents(String studentsData){
+        String sid,sname;
+        try {
+            JSONArray jsonArray=new JSONArray(studentsData);
+            for(int i=0;i<jsonArray.length();i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                Student student=new Student();
+                sid = jsonObject.getString("sid");
+                sname = jsonObject.getString("sname");
+                student.setStudentId(sid);
+                student.setStudentName(sname);
+                studentList.add(student);
+            }
+            Message message=new Message();
+            message.what=0;
+            handler.sendMessage(message);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 0:
+                    studentAdapter=new StudentAdapter(CourseActivity.this,R.layout.item_list_students,studentList);
+                    student_list.setAdapter(studentAdapter);
+                    break;
+            }
+        }
+    };
     private void openAlbum() {
         Intent intent = new Intent("android.intent.action.GET_CONTENT");
         intent.setType("images/*");

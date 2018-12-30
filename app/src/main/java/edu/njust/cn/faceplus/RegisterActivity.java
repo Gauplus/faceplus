@@ -58,6 +58,10 @@ public class RegisterActivity extends AppCompatActivity {
                                 message.what=1;
                                 handler.sendMessage(message);
                             }
+                            else if (RegisterService.registerByPost(id,password,telNumber)=="registered"){
+                                message.what=2;
+                                handler.sendMessage(message);
+                            }
                             else{
                                 message.what=0;
                                 handler.sendMessage(message);
@@ -82,7 +86,9 @@ public class RegisterActivity extends AppCompatActivity {
                 case 0:
                     Toast.makeText(RegisterActivity.this,"注册失败",Toast.LENGTH_LONG).show();
                     break;
-
+                case 2:
+                    Toast.makeText(RegisterActivity.this,"您已经注册过",Toast.LENGTH_LONG).show();
+                    break;
             }
         }
     };

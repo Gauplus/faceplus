@@ -13,7 +13,7 @@ public class RegisterService {
     public static String registerByPost(String id, String password,String telnumber) {
         HttpURLConnection connection=null;
         URL url=null;
-        String path = "http://10.42.194.75:8080/QQServerDatabase/RegisterServlet";
+        String path = "http://10.30.111.245:3000/register";
         try {
             url = new URL(path);
             connection = (HttpURLConnection) url.openConnection();
@@ -22,7 +22,7 @@ public class RegisterService {
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             connection.setDoInput(true);
-            String sendData = "&passwordd=" + URLEncoder.encode(password, "UTF-8")+ "&id=" + URLEncoder.encode(id, "UTF-8")+"&telnumber="+URLEncoder.encode(telnumber,"UTF-8");
+            String sendData = "&password=" + URLEncoder.encode(password, "UTF-8")+ "&id=" + URLEncoder.encode(id, "UTF-8")+"&phone="+URLEncoder.encode(telnumber,"UTF-8");
             connection.setRequestProperty("Content=Type", "application/x-wwww-form-urlencoded");
             connection.setRequestProperty("Content-length", sendData.length()+"");
             OutputStream outputStream=connection.getOutputStream();
@@ -46,10 +46,10 @@ public class RegisterService {
         return null;
 
     }
-    public static String registerInfoByPost(String name, String nickname,String birth,String sex,String school) {
+    public static String registerInfoByPost(String name, String nickname,String birth,String sex,String school,String tid) {
         HttpURLConnection connection=null;
         URL url=null;
-        String path = "http://10.42.194.75:8080/QQServerDatabase/RegisterServlet";
+        String path = "http://10.30.111.245:3000/modifyTeacherInfo";
         try {
             url = new URL(path);
             connection = (HttpURLConnection) url.openConnection();
@@ -58,7 +58,7 @@ public class RegisterService {
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             connection.setDoInput(true);
-            String sendData = "&name=" + URLEncoder.encode(name, "UTF-8")+ "&nickname=" + URLEncoder.encode(nickname, "UTF-8")+"&birth="+URLEncoder.encode(birth,"UTF-8")+"&sex="+URLEncoder.encode(sex,"UTF-8")+"&school="+URLEncoder.encode(school,"UTF-8");
+            String sendData = "&tname=" + URLEncoder.encode(name, "UTF-8")+ "&kname=" + URLEncoder.encode(nickname, "UTF-8")+"&birth="+URLEncoder.encode(birth,"UTF-8")+"&gender="+URLEncoder.encode(sex,"UTF-8")+"&school="+URLEncoder.encode(school,"UTF-8")+"&tid="+URLEncoder.encode(tid,"UTF-8");
             connection.setRequestProperty("Content=Type", "application/x-wwww-form-urlencoded");
             connection.setRequestProperty("Content-length", sendData.length()+"");
             OutputStream outputStream=connection.getOutputStream();

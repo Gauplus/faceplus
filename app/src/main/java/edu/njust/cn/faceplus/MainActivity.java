@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btn_course;
     private Button btn_infopage;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
