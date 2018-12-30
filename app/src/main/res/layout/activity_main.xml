@@ -21,17 +21,16 @@
 
         <Button
             android:id="@+id/btn_course"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/tab_course"
-            android:drawablePadding="3dp"
             android:gravity="center"
-            android:padding="5dp" />
+            />
 
         <Button
             android:id="@+id/btn_infopage"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/tab_infopage"

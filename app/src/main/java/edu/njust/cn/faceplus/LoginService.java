@@ -1,5 +1,7 @@
 package edu.njust.cn.faceplus;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,7 +15,7 @@ public class LoginService {
     public static String loginByPost(String id,String password) {
         HttpURLConnection connection=null;
         URL url=null;
-        String path = "http://10.30.111.245:3000/login";
+        String path = "http://192.168.1.103:3000/login";
         try {
             url = new URL(path);
             connection = (HttpURLConnection) url.openConnection();
@@ -31,6 +33,7 @@ public class LoginService {
             if(code==200){
                 InputStream inputStream=connection.getInputStream();
                 String text=StreamUtil.readFromStream(inputStream);
+                Log.d("Login",text+"1111111");
                 return text;
             }
             else {
