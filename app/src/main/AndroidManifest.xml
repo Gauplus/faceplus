@@ -21,8 +21,16 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
+                android:resource="@xml/file_paths" />
         </provider>
+        <activity android:name=".SplashActivity"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity android:name=".LoginActivity">
 
         </activity>
@@ -32,12 +40,8 @@
         <activity android:name=".SignResultListActivity" />
         <activity android:name=".StatusResultPicActivity" />
         <activity android:name=".StatusResultListActivity" />
-        <activity android:name=".RegisterInfoActivity" >
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+        <activity android:name=".RegisterInfoActivity">
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
         </activity>
 
         <provider
@@ -50,7 +54,8 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".StudentActivity"></activity>
+        <activity android:name=".StudentActivity" />
+
     </application>
 
 </manifest>
