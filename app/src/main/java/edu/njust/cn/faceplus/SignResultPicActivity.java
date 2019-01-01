@@ -13,7 +13,6 @@ public class SignResultPicActivity extends AppCompatActivity {
     private FloatingActionButton fab_sign_result_list;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 

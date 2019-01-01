@@ -11,15 +11,18 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -36,9 +39,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -47,15 +55,26 @@ import okhttp3.Response;
 public class CourseActivity extends AppCompatActivity {
     private TextView txt_courseTitle;
     private ListView student_list;
+    private Uri imageUri;
+    private String mTempPhotoPath;
     private FloatingActionButton fab_signIn;       //签到按钮
     private FloatingActionButton fab_checkStatus; //状态检测按钮
     private StudentAdapter studentAdapter;
-    private ArrayList<Student> studentList;
+    private ArrayList<Student> studentList=new ArrayList<>();
     public static final int Take_photo = 1;
     public static  final int CHOOSE_PHOTO=2;
-    private ImageView picture;
-    private Uri imageUri;
     private String studentsData;
+    private String cid=null;
+    private String tid=null;
+    private String cname=null;
+    private String place=null;
+    private String ctime=null;
+    private String photo_path;
+    private final OkHttpClient client = new OkHttpClient();
+    private final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+    public final static int CAMERA_REQUEST_CODE = 0;
+    // 相册选择回传码
+    public final static int GALLERY_REQUEST_CODE = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,42 +84,24 @@ public class CourseActivity extends AppCompatActivity {
         fab_signIn=findViewById(R.id.fab_signIn);
         fab_checkStatus=findViewById(R.id.fab_checkStatus);
         init();
-
-
         fab_signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(view.getContext(),"调用摄像头拍照",Toast.LENGTH_LONG).show();
-                File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
-                try {
-                    if (outputImage.exists()) {
-                        outputImage.delete();
-                    }
-                    outputImage.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                //Toast.makeText(view.getContext(),"调用摄像头拍照",Toast.LENGTH_LONG).show();
+                if (ContextCompat.checkSelfPermission(CourseActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(CourseActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_REQUEST_CODE);
 
-                }
-                if (Build.VERSION.SDK_INT >= 24) {
-                    imageUri = FileProvider.getUriForFile(CourseActivity.this, "edu.njust.cn.faceplus.provider", outputImage);
-                } else {
-                    imageUri = Uri.fromFile(outputImage);
-                }
-                //启动相机程序
-                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                startActivityForResult(intent, Take_photo);
-            }
-        });
-        fab_checkStatus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(view.getContext(),"调用摄像头拍照",Toast.LENGTH_LONG).show();
-                if (ContextCompat.checkSelfPermission(CourseActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(CourseActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-
-                } else {
-                    openAlbum();
+                }else {
+                    Intent intentToTakePhoto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    mTempPhotoPath = Environment.getExternalStorageDirectory() + File.separator + "photo.jpeg";
+                    imageUri = FileProvider.getUriForFile(CourseActivity.this,
+                            getApplicationContext().getPackageName() + ".provider",
+                            new File(mTempPhotoPath));
+                    intentToTakePhoto.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    startActivityForResult(intentToTakePhoto, CAMERA_REQUEST_CODE);
                 }
             }
         });
@@ -109,7 +110,6 @@ public class CourseActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String tid=null,cid=null,place=null,ctime=null;
                 Intent intent = getIntent();
                 if("action".equals(intent.getAction())) {
                     tid = intent.getStringExtra("tid");
@@ -119,7 +119,7 @@ public class CourseActivity extends AppCompatActivity {
                 }
                 OkHttpClient okHttpClient = new OkHttpClient();
                 Request.Builder reqBuild = new Request.Builder();
-                HttpUrl.Builder urlBuilder =HttpUrl.parse("http://10.30.111.245:3000/getStudentList")
+                HttpUrl.Builder urlBuilder =HttpUrl.parse("http://192.168.43.98:3000/getStudentList")
                         .newBuilder();
                 urlBuilder.addQueryParameter("tid", tid);
                 urlBuilder.addQueryParameter("cid", cid);
@@ -131,6 +131,7 @@ public class CourseActivity extends AppCompatActivity {
                     Response response = okHttpClient.newCall(request).execute();
                     //获取到数据
                     studentsData = response.body().string();
+                    Log.d("courseactivity",studentsData+"学生列表");
                     //在线程中没有办法实现主线程操作
                     GSONStudents(studentsData);
                 }catch (IOException e){
@@ -165,117 +166,113 @@ public class CourseActivity extends AppCompatActivity {
             super.handleMessage(msg);
             switch (msg.what){
                 case 0:
+                    txt_courseTitle.setText(cname);
                     studentAdapter=new StudentAdapter(CourseActivity.this,R.layout.item_list_students,studentList);
                     student_list.setAdapter(studentAdapter);
                     break;
             }
         }
     };
-    private void openAlbum() {
-        Intent intent = new Intent("android.intent.action.GET_CONTENT");
-        intent.setType("images/*");
-        startActivityForResult(intent,CHOOSE_PHOTO);//打开相册
-    }
-    public void onRequestPermissionResult(int requestCode,String[] permissions,int[] grantResults)
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
     {
-        switch (requestCode)
+        if (requestCode == CAMERA_REQUEST_CODE)
         {
-            case 1:
-                if(grantResults.length>0&&grantResults[0]==PackageManager.PERMISSION_GRANTED){
-                    openAlbum();
-                }else
-                {
-                    Toast.makeText(this,"You denied the permission",Toast.LENGTH_SHORT).show();
-                }
-                break;
-            default:
-                break;
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Intent intentToTakePhoto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                mTempPhotoPath = Environment.getExternalStorageDirectory() + File.separator + "photo.jpeg";
+                imageUri = FileProvider.getUriForFile(CourseActivity.this,
+                        getApplicationContext().getPackageName() +".provider",
+                        new File(mTempPhotoPath));
+                intentToTakePhoto.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(intentToTakePhoto, CAMERA_REQUEST_CODE);
 
+            } else
+            {
+                Toast.makeText(CourseActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            }
         }
+        if (requestCode == GALLERY_REQUEST_CODE)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Intent intentToPickPic = new Intent(Intent.ACTION_PICK, null);
+                // 如果限制上传到服务器的图片类型时可以直接写如："image/jpeg 、 image/png等的类型" 所有类型则写 "image/*"
+                intentToPickPic.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                startActivityForResult(intentToPickPic, GALLERY_REQUEST_CODE);
+            } else
+            {
+                Toast.makeText(CourseActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
 
-
-    protected void  onActivityResult(int requestCode,int resultCode,Intent data) {
-        switch (requestCode) {
-            case Take_photo:
-                if (requestCode == RESULT_OK) {
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == CourseActivity.RESULT_OK) {
+            switch (requestCode) {
+                case CAMERA_REQUEST_CODE: {
+                    // 获得图片
                     try {
-                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
-                        picture.setImageBitmap(bitmap);
-                    } catch (FileNotFoundException e) {
+                        Bitmap bit = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                       photo_path = ImageUtil.getPath(this, imageUri);
+                        //选取完图片后调用上传方法，将图片路径放入参数中
+                        sendStudentInfoToServer(photo_path);
+                        // 给相应的ImageView设置图片 未裁剪
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    break;
                 }
-                break;
-            case CHOOSE_PHOTO:
-                if (resultCode==RESULT_OK){
-                    if(Build.VERSION.SDK_INT>=19)
-                    {
-                        //4.4及以上系统是用这个方法处理图片
-                        handleImageOnKitKat(data);
-                    }else{
-                        //4.4以下系统使用这个方法处理图片
-                        handleImageBeforeKitKat(data);
-
+                case GALLERY_REQUEST_CODE: {
+                    // 获取图片
+                    try {
+                        //该uri是上一个Activity返回的
+                        imageUri = data.getData();
+                        if(imageUri!=null) {
+                            Bitmap bit = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                            Log.i("bit", String.valueOf(bit));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                    break;
                 }
-                break;
-            default:
-                break;
+            }
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void handleImageOnKitKat(Intent data)
-    {
-        String imagePath=null;
-        Uri uri = data.getData();
-        if(DocumentsContract.isDocumentUri(this,uri)){
-            //如果是document类型的URI，则通过document id处理
-            String docId=DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())){
-                String id=docId.split(":")[1];//解析出数字格式的id
-                String selection = MediaStore.Images.Media._ID+"="+id;
-                imagePath=getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,selection);
+    private void sendStudentInfoToServer(String path) {
+        //接口地址
+        final File file=new File(path);
+        final String urlAddress = "http://192.168.43.98:3000/attendence";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                RequestBody fileBody = RequestBody.create(MediaType.parse("image/png"), file);
+                RequestBody requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("file", "sign_image", fileBody)
+                        .build();
+                Request request = new Request.Builder()
+                        .url(urlAddress)
+                        .post(requestBody)
+                        .build();
+                Response response;
+                try {
+                    response = client.newCall(request).execute();
+                    String jsonString = response.body().string();
+                    Log.d("courseactivity","返回数据"+jsonString);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d("courseactivity","upload IOException ",e);
+                }
+            }
+        }).start();
+    }
 
-            }else if("com.android.providers.downloads.documents".equals(uri.getAuthority())){
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads//public_downloads"),Long.valueOf(docId));
-                imagePath=getImagePath(contentUri,null);
-            }
-        }else if("content".equalsIgnoreCase(uri.getScheme())){
-            //如果是content类型的Uri，则使用普通方式处理
-            imagePath=getImagePath(uri,null);
-        }else if("file".equalsIgnoreCase(uri.getScheme())){
-            //如果是file类型的URI，直接获取图片路径即可
-            imagePath=uri.getPath();
-        }
-        displayImage(imagePath);
-    }
-    private  void handleImageBeforeKitKat(Intent data){
-        Uri uri=data.getData();
-        String imagePath = getImagePath(uri,null);
-        displayImage(imagePath);
-    }
-    private  String getImagePath(Uri uri,String selection){
-        String path=null;
-        //通过uri和selection来获取真实的图片路径
-        Cursor cursor=getContentResolver().query(uri,null,selection,null,null);
-        if(cursor!=null)
-        {
-            if(cursor.moveToFirst()){
-                path=cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            }
-            cursor.close();
-        }
-        return path;
-    }
-    private  void displayImage(String imagePath)
-    {
-        if(imagePath!=null){
-            Bitmap bitmap =BitmapFactory.decodeFile(imagePath);
-            picture.setImageBitmap(bitmap);
-        }else{
-            Toast.makeText(this,"failed to get image",Toast.LENGTH_SHORT).show();
-        }
-    }
 }

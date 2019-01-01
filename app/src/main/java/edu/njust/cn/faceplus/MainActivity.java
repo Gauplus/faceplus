@@ -10,8 +10,8 @@ import android.widget.Button;
  * 登录成功后的跳转界面，默认首先显示课程列表界面
  */
 public class MainActivity extends AppCompatActivity {
-    private CourseFragment courseFragment;
-    private InfoPageFragment infoPageFragment;
+    private CourseFragment courseFragment=new CourseFragment();
+    private InfoPageFragment infoPageFragment=new InfoPageFragment();
     private Button btn_course;
     private Button btn_infopage;
 

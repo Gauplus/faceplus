@@ -7,6 +7,7 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +33,7 @@ import okhttp3.Response;
 public class CourseFragment extends Fragment {
     private ListView course_list;
     private View view;
-    private ArrayList<Course> courseList;
+    private ArrayList<Course> courseList=new ArrayList<>();
     private CourseAdapter courseAdapter;
     private String coursesData;
     private Data dataApp;
@@ -54,6 +55,7 @@ public class CourseFragment extends Fragment {
                 intent.putExtra("cid", course.getCourseId());
                 intent.putExtra("place",course.getCoursePlace());
                 intent.putExtra("ctime",course.getCourseTime());
+                intent.putExtra("cname",course.getCourseName());
                 getActivity().startActivity(intent);
 
             }
@@ -66,7 +68,7 @@ public class CourseFragment extends Fragment {
             public void run() {
                 OkHttpClient okHttpClient = new OkHttpClient();
                 Request.Builder reqBuild = new Request.Builder();
-                HttpUrl.Builder urlBuilder =HttpUrl.parse("http://10.30.111.245:3000/getCourses")
+                HttpUrl.Builder urlBuilder =HttpUrl.parse("http://192.168.43.98:3000/getCourses")
                         .newBuilder();
                 urlBuilder.addQueryParameter("tid", dataApp.getTid());
                 reqBuild.url(urlBuilder.build());
@@ -75,9 +77,11 @@ public class CourseFragment extends Fragment {
                     Response response = okHttpClient.newCall(request).execute();
                     //获取到数据
                     coursesData = response.body().string();
+                    Log.d("coursefragment",coursesData+"课程数据");
                     //在线程中没有办法实现主线程操作
                     GSONCourses(coursesData);
                 }catch (IOException e){
+
                     e.printStackTrace();
                 }
             }
@@ -103,13 +107,18 @@ public class CourseFragment extends Fragment {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 Course course=new Course();
                 cid = jsonObject.getString("cid");
+                Log.d("coursefragment",cid+"课程号");
                 cname = jsonObject.getString("cname");
+                Log.d("coursefragment",cname+"课程名");
                 place = jsonObject.getString("place");
+                Log.d("coursefragment",cid+"课程地点");
                 ctime = jsonObject.getString("ctime");
+                Log.d("coursefragment",cid+"课程时间");
                 course.setCourseId(cid);
                 course.setCourseName(cname);
                 course.setCoursePlace(place);
                 course.setCourseTime(ctime);
+                Log.d("coursefragment",courseList+"课程列表");
                 courseList.add(course);
             }
             Message message=new Message();

@@ -89,12 +89,6 @@ public class InfoPageFragment extends Fragment {
         btn_chooseFromAlbum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /**if (ContextCompat.checkSelfPermission(RegisterInfoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                 ActivityCompat.requestPermissions(RegisterInfoActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-
-                 } else {
-                 openAlbum();
-                 }*/
                 if (ContextCompat.checkSelfPermission(getContext(),
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {   //权限还没有授予，需要在这里写申请权限的代码
@@ -144,7 +138,7 @@ public class InfoPageFragment extends Fragment {
             public void run() {
                 OkHttpClient okHttpClient = new OkHttpClient();
                 Request.Builder reqBuild = new Request.Builder();
-                HttpUrl.Builder urlBuilder =HttpUrl.parse("http://10.30.111.245:3000/getStudentList")
+                HttpUrl.Builder urlBuilder =HttpUrl.parse("http://192.168.43.98:3000/getTeacherInfo")
                         .newBuilder();
                 urlBuilder.addQueryParameter("tid", dataApp.getTid());
                 reqBuild.url(urlBuilder.build());

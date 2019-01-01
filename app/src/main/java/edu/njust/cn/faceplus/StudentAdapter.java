@@ -29,6 +29,8 @@ public class StudentAdapter extends ArrayAdapter<Student> {
             viewHolder=new ViewHolder();
             viewHolder.txt_studentName=view.findViewById(R.id.txt_studentName);
             viewHolder.txt_studentID=view.findViewById(R.id.txt_studentID);
+            viewHolder.txt_studentName.setText(student.getStudentName());
+            viewHolder.txt_studentID.setText(student.getStudentId());
             view.setTag(viewHolder);
         }
         else{

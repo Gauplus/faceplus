@@ -34,6 +34,11 @@ public class CourseAdapter extends ArrayAdapter<Course> {
             viewHolder.txt_courseName=view.findViewById(R.id.txt_courseName);
             viewHolder.txt_courseTime=view.findViewById(R.id.txt_courseTime);
             viewHolder.txt_coursePlace=view.findViewById(R.id.txt_coursePlace);
+            viewHolder.txt_courseID=view.findViewById(R.id.txt_courseID);
+            viewHolder.txt_courseID.setText(course.getCourseId());
+            viewHolder.txt_courseName.setText(course.getCourseName());
+            viewHolder.txt_coursePlace.setText(course.getCoursePlace());
+            viewHolder.txt_courseTime.setText(course.getCourseTime());
             view.setTag(viewHolder);
         }
         else{
@@ -43,6 +48,7 @@ public class CourseAdapter extends ArrayAdapter<Course> {
         return view;
     }
     class ViewHolder{
+        TextView txt_courseID;
         TextView txt_courseName;
         TextView txt_courseTime;
         TextView txt_coursePlace;

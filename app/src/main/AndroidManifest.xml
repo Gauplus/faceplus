@@ -13,6 +13,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/lookingicon"
         android:supportsRtl="true"
+        android:hardwareAccelerated="false"
+        android:largeHeap="true"
         android:theme="@style/AppTheme">
         <provider
             android:name=".GeneralFileProVider"
@@ -24,7 +26,11 @@
                 android:resource="@xml/file_paths"/>
         </provider>
         <activity android:name=".LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".CourseActivity" />
         <activity android:name=".RegisterActivity" />
@@ -33,11 +39,6 @@
         <activity android:name=".StatusResultPicActivity" />
         <activity android:name=".StatusResultListActivity" />
         <activity android:name=".RegisterInfoActivity" >
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
         </activity>
 
         <provider
@@ -51,6 +52,7 @@
         </provider>
 
         <activity android:name=".StudentActivity"></activity>
+        <activity android:name=".MainActivity"></activity>
     </application>
 
 </manifest>
